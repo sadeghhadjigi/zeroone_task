@@ -21,11 +21,21 @@ namespace ZeroOneTask.Application
             {
                 var agencySubscriptions = await _subscriptionRepository.GetSubscriptionsByAgencyId(agencyId);
 
+                var inDateTotalFlights = await _flightRepository.GetFlightsByDate(startDate, endDate);
+                var flightsByRoute = inDateTotalFlights
+                                        .GroupBy(x => x.OriginCityId)
+                                        .ToDictionary(group => group.Key, group => group.GroupBy(x => x.DestinationCityId).ToDictionary(g => g.Key, g => g.ToList()));
+
                 var flights = new List<FlightDto>();
                 foreach (var subscription in agencySubscriptions)
                 {
-                    var subRouteFlights = await _flightRepository.GetFlightsByRoute(subscription.OriginCityId, subscription.DestinationCityId, startDate, endDate);
-                    flights.AddRange(subRouteFlights);
+                    if (flightsByRoute.ContainsKey(subscription.OriginCityId))
+                    {
+                        if (flightsByRoute[subscription.OriginCityId].ContainsKey(subscription.DestinationCityId))
+                        {
+                            flights.AddRange(flightsByRoute[subscription.OriginCityId][subscription.DestinationCityId]);
+                        }
+                    }
                 }
 
                 var flightsByAirlineId = flights

@@ -4,6 +4,6 @@ namespace ZeroOneTask.Application.Interfaces
 {
     public interface IFlightRepository
     {
-        Task<List<FlightDto>> GetFlightsByRoute(long originCityId, long destinationCityId, DateTime startDate, DateTime endDate);
+        Task<List<FlightDto>> GetFlightsByDate(DateTime startDate, DateTime endDate);
     }
 }
