@@ -12,8 +12,8 @@
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/ZeroOneTask.ConsoleApp/bin/Debug/net8.0/ZeroOneTask.ConsoleApp.dll",
             "args": [
-                "2018-01-01",
-                "2018-01-15",
+                "2016-10-01",
+                "2017-10-01",
                 "1"
             ],
             "cwd": "${workspaceFolder}/ZeroOneTask.ConsoleApp",

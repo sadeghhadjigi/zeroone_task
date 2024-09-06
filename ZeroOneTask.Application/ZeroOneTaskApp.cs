@@ -24,7 +24,7 @@ namespace ZeroOneTask.Application
                 var flights = new List<FlightDto>();
                 foreach (var subscription in agencySubscriptions)
                 {
-                    var subRouteFlights = await _flightRepository.GetFlightsByRoute(subscription.OriginCityId, subscription.DestinationCityId);
+                    var subRouteFlights = await _flightRepository.GetFlightsByRoute(subscription.OriginCityId, subscription.DestinationCityId, startDate, endDate);
                     flights.AddRange(subRouteFlights);
                 }
 
@@ -32,7 +32,8 @@ namespace ZeroOneTask.Application
                                             .GroupBy(x => x.AirlineId)
                                             .ToDictionary(group => group.Key, group => group.Select(x => x.DepartureTime).ToList());
 
-                foreach (var flight in flights)
+                var validFlights = flights.Where(flight => flight.DepartureTime >= startDate && flight.DepartureTime <= endDate);
+                foreach (var flight in validFlights)
                 {
                     flight.Status = !flightsByAirlineId[flight.AirlineId].Any(f => f >= flight.DepartureTime.AddDays(-7).AddHours(-0.5) &&
                         f <= flight.DepartureTime.AddDays(-7).AddHours(0.5)) ? "New"
