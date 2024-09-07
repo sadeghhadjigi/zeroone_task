@@ -57,7 +57,7 @@ namespace ZeroOneTask.Application
         {
             var flightsByAirlineIdDict = flights
                     .GroupBy(x => x.AirlineId)
-                    .ToDictionary(group => group.Key, group => group.Select(x => x.DepartureTime).ToList());
+                    .ToDictionary(group => group.Key, group => new HashSet<DateTime>(group.Select(x => x.DepartureTime)));
 
             var validFlights = flights.Where(flight => flight.DepartureTime >= startDate && flight.DepartureTime <= endDate);
             foreach (var flight in validFlights)
@@ -72,7 +72,7 @@ namespace ZeroOneTask.Application
                     : "";
             }
 
-            return flights.Where(f => !string.IsNullOrEmpty(f.Status)).ToList();
+            return validFlights.Where(f => !string.IsNullOrEmpty(f.Status)).ToList();
         }
 
         private void GenerateCSV(string filePath, List<FlightDto> results)
