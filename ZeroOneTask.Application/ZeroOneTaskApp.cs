@@ -41,12 +41,9 @@ namespace ZeroOneTask.Application
             var flights = new List<FlightDto>();
             foreach (var subscription in agencySubscriptions)
             {
-                if (flightsByRouteDict.ContainsKey(subscription.OriginCityId))
+                if (flightsByRouteDict.ContainsKey(subscription.OriginCityId) && flightsByRouteDict[subscription.OriginCityId].ContainsKey(subscription.DestinationCityId))
                 {
-                    if (flightsByRouteDict[subscription.OriginCityId].ContainsKey(subscription.DestinationCityId))
-                    {
-                        flights.AddRange(flightsByRouteDict[subscription.OriginCityId][subscription.DestinationCityId]);
-                    }
+                    flights.AddRange(flightsByRouteDict[subscription.OriginCityId][subscription.DestinationCityId]);
                 }
             }
 
@@ -60,7 +57,7 @@ namespace ZeroOneTask.Application
                     .ToDictionary(group => group.Key, group => new HashSet<DateTime>(group.Select(x => x.DepartureTime)));
 
             var validFlights = flights.Where(flight => flight.DepartureTime >= startDate && flight.DepartureTime <= endDate);
-            foreach (var flight in validFlights)
+            Parallel.ForEach(validFlights, flight =>
             {
                 var lastWeekFlightDepartureTime = flight.DepartureTime.AddDays(-7);
                 var nextWeekFlightDepartureTime = flight.DepartureTime.AddDays(7);
@@ -70,7 +67,7 @@ namespace ZeroOneTask.Application
                     : !flightsByAirlineIdDict[flight.AirlineId].Any(f => f >= nextWeekFlightDepartureTime.AddHours(-0.5) &&
                     f <= nextWeekFlightDepartureTime.AddHours(0.5)) ? "Discontinued"
                     : "";
-            }
+            });
 
             return validFlights.Where(f => !string.IsNullOrEmpty(f.Status)).ToList();
         }
